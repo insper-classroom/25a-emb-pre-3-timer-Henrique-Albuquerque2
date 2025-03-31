@@ -15,7 +15,7 @@ int64_t alarm_callback(alarm_id_t id, void *user_data) {
 void btn_callback(uint gpio, uint32_t events) {
     alarm_id_t alarm;
     if (events == 0x4) { 
-        alarm = add_alarm_in_ms(1000, alarm_callback, NULL, false);
+        alarm = add_alarm_in_ms(500, alarm_callback, NULL, false);
     } else if (events == 0x8) { 
         if (!timer_fired) {
             cancel_alarm(alarm);
