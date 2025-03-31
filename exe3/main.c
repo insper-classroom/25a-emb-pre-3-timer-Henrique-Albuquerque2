@@ -6,17 +6,25 @@ const int BTN_PIN_R = 28;
 const int LED_PIN_R = 4;
 
 volatile int flag_f_r = 0;
-volatile absolute_time_t press_time;
+volatile bool timer_fired = false;
+
+int64_t alarm_callback(alarm_id_t id, void *user_data) {
+    timer_fired = true;
+    return 0;
+}
 
 void btn_callback(uint gpio, uint32_t events) {
     if (events == 0x4) { 
-        press_time = get_absolute_time(); 
+        alarm_id_t alarm = add_alarm_in_ms(300, alarm_callback, NULL, false));
     } else if (events == 0x8) { 
-        if (absolute_time_diff_us(press_time, get_absolute_time()) > 500000) { 
+        if (!timer_fired) {
+            cancel_alarm(alarm);
+        } else {
             flag_f_r = 1;
+            timer_fired = false;
         }
-    }
 }
+
 
 int main() {
     stdio_init_all();
@@ -36,8 +44,8 @@ int main() {
         if (flag_f_r) {
             flag_f_r = 0;
             gpio_put(LED_PIN_R, !gpio_get(LED_PIN_R)); 
-        sleep_ms(10); 
-    }
+            sleep_ms(10); 
+        }
 
-    return 0;
+        return 0;
 }}
